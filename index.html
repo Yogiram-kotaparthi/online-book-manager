@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Online Book Library Manager</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    input, button {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    .book-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .book {
+      background: #fafafa;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    .book button {
+      margin-top: 0.5rem;
+      margin-right: 0.5rem;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>📚 Online Book Library Manager</h1>
+    <form id="bookForm">
+      <input type="text" id="title" placeholder="Book Title" required />
+      <input type="text" id="author" placeholder="Author" required />
+      <input type="number" id="pages" placeholder="Number of Pages" required />
+      <button type="submit">Add Book</button>
+    </form>
+
+    <div class="book-list" id="bookList"></div>
+  </div>
+
+  <script>
+    const bookForm = document.getElementById('bookForm');
+    const bookList = document.getElementById('bookList');
+
+    let books = JSON.parse(localStorage.getItem('books')) || [];
+
+    function renderBooks() {
+      bookList.innerHTML = '';
+      books.forEach((book, index) => {
+        const bookDiv = document.createElement('div');
+        bookDiv.className = 'book';
+        bookDiv.innerHTML = `
+          <h3>${book.title}</h3>
+          <p><strong>Author:</strong> ${book.author}</p>
+          <p><strong>Pages:</strong> ${book.pages}</p>
+          <p><strong>Status:</strong> ${book.read ? 'Read' : 'Not Read'}</p>
+          <button onclick="toggleRead(${index})">${book.read ? 'Mark Not Read' : 'Mark Read'}</button>
+          <button onclick="deleteBook(${index})">Delete</button>
+        `;
+        bookList.appendChild(bookDiv);
+      });
+    }
+
+    function toggleRead(index) {
+      books[index].read = !books[index].read;
+      saveAndRender();
+    }
+
+    function deleteBook(index) {
+      books.splice(index, 1);
+      saveAndRender();
+    }
+
+    function saveAndRender() {
+      localStorage.setItem('books', JSON.stringify(books));
+      renderBooks();
+    }
+
+    bookForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const title = document.getElementById('title').value.trim();
+      const author = document.getElementById('author').value.trim();
+      const pages = document.getElementById('pages').value.trim();
+
+      if(title && author && pages) {
+        books.push({ title, author, pages, read: false });
+        saveAndRender();
+        bookForm.reset();
+      }
+    });
+
+    renderBooks();
+  </script>
+
+</body>
+</html>
